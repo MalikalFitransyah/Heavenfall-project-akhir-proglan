@@ -471,8 +471,6 @@ if (!enemies[j].dying &&
                 }
             }
         }
-
-        // ================= DRAW =================
         window.clear();
         window.draw(bg);
 
