@@ -2,33 +2,37 @@
 #include <cstdlib>
 #include <cmath>
 #include <string>
+#include <algorithm>
 
-StageManager::StageManager(sf::Texture* walkTex, sf::Texture* despawnTex,
+StageManager::StageManager(sf::Texture* walkTex,    sf::Texture* despawnTex,
+                           sf::Texture* terroreyeTex, sf::Texture* maskTex,
+                           sf::Texture* wingTex,      sf::Texture* spawnFxTex,
                            sf::Font& font, float mapW, float mapH)
-    : mWalkTex(walkTex)
-    , mDespawnTex(despawnTex)
-    , mCurrentStage(0)
-    , mSpawnedCount(0)
-    , mKilledCount(0)
+    : mWalkTex(walkTex), mDespawnTex(despawnTex)
+    , mTerroreyeTex(terroreyeTex), mMaskTex(maskTex)
+    , mWingTex(wingTex), mSpawnFxTex(spawnFxTex)
+    , mCurrentStage(0), mSpawnedCount(0)
     , mSpawnInterval(2.0f)
     , mState(StageState::Playing)
     , mClearDuration(3.0f)
-    , mMapW(mapW)
-    , mMapH(mapH)
+    , mMapW(mapW), mMapH(mapH)
     , mStageClearText(font, "STAGE CLEAR!", 100)
     , mStageNameText(font, "", 60)
 {
-    // Definisi stage: total musuh per stage
-    mStages = { {15}, {30}, {50} };
+    // totalEnemies, spawnStart, spawnMin, enemyHp
+    mStages = {
+        { 15, 2.0f, 1.2f, 1 },
+        { 30, 1.8f, 0.9f, 2 },
+        { 50, 1.5f, 0.6f, 3 },
+        { 80, 1.2f, 0.3f, 4 },
+    };
 
-    // Style teks STAGE CLEAR
     mStageClearText.setFillColor(sf::Color::White);
     mStageClearText.setStyle(sf::Text::Bold);
     sf::FloatRect b = mStageClearText.getLocalBounds();
     mStageClearText.setOrigin({b.size.x / 2.f, b.size.y / 2.f});
     mStageClearText.setPosition({mapW / 2.f, mapH / 2.f - 80.f});
 
-    // Style teks nama stage berikutnya
     mStageNameText.setFillColor(sf::Color(200, 200, 200));
     sf::FloatRect b2 = mStageNameText.getLocalBounds();
     mStageNameText.setOrigin({b2.size.x / 2.f, b2.size.y / 2.f});
@@ -40,13 +44,13 @@ void StageManager::update(float dt, sf::Vector2f playerCenter)
     if (mState == StageState::StageClear)
     {
         updateStageClearTimer(dt);
+        for (auto& item : mItems) item.update(dt);
         return;
     }
-
     if (mState == StageState::AllClear) return;
 
-    // Spawn musuh jika belum mencapai total stage
     int total = mStages[mCurrentStage].totalEnemies;
+
     if (mSpawnedCount < total)
     {
         if (mSpawnClock.getElapsedTime().asSeconds() > mSpawnInterval)
@@ -54,35 +58,45 @@ void StageManager::update(float dt, sf::Vector2f playerCenter)
             mSpawnClock.restart();
             spawnEnemy(playerCenter);
             mSpawnedCount++;
+
+            float minInterval = mStages[mCurrentStage].spawnIntervalMin;
+            if (mSpawnInterval > minInterval) mSpawnInterval -= 0.05f;
+            if (mSpawnInterval < minInterval) mSpawnInterval = minInterval;
         }
     }
 
-    // Update semua enemy
-    for (auto& e : mEnemies)
-        e.update(dt, playerCenter);
+    for (auto& e : mEnemies) e.update(dt, playerCenter);
 
-    // Hapus enemy yang sudah benar-benar mati, hitung yang terbunuh
     for (size_t i = 0; i < mEnemies.size(); i++)
     {
         if (mEnemies[i].isDead())
         {
-            mKilledCount++;
+            sf::Vector2f deathPos = mEnemies[i].getPosition();
             mEnemies.erase(mEnemies.begin() + i);
             i--;
+
+            if (mSpawnedCount >= total && mEnemies.empty())
+                dropItem(deathPos);
         }
     }
 
-    // Cek apakah stage selesai
-    if (mSpawnedCount >= total && mEnemies.empty())
+    for (auto& item : mItems) item.update(dt);
+    mItems.erase(
+        std::remove_if(mItems.begin(), mItems.end(),
+            [](const Item& it){ return it.shouldRemove(); }),
+        mItems.end()
+    );
+
+    // Stage selesai jika semua musuh mati DAN item sudah diambil (atau tidak ada item)
+    if (mSpawnedCount >= total && mEnemies.empty() && mItems.empty())
     {
         if (mCurrentStage + 1 < (int)mStages.size())
         {
             mState = StageState::StageClear;
             mClearClock.restart();
 
-            // Update teks stage berikutnya
-            std::string nextName = "STAGE " + std::to_string(mCurrentStage + 2) + " INCOMING...";
-            mStageNameText.setString(nextName);
+            std::string next = "STAGE " + std::to_string(mCurrentStage + 2) + " INCOMING...";
+            mStageNameText.setString(next);
             sf::FloatRect b = mStageNameText.getLocalBounds();
             mStageNameText.setOrigin({b.size.x / 2.f, b.size.y / 2.f});
             mStageNameText.setPosition({mMapW / 2.f, mMapH / 2.f + 40.f});
@@ -100,9 +114,23 @@ void StageManager::updateStageClearTimer(float dt)
         nextStage();
 }
 
+void StageManager::dropItem(sf::Vector2f position)
+{
+    ItemType     type;
+    sf::Texture* tex = nullptr;
+
+    if      (mCurrentStage == 0) { type = ItemType::TerrorEye;       tex = mTerroreyeTex; }
+    else if (mCurrentStage == 1) { type = ItemType::BlasphemousMask;  tex = mMaskTex;      }
+    else if (mCurrentStage == 2) { type = ItemType::DevilWing;        tex = mWingTex;      }
+    else return;
+
+    mItems.emplace_back(tex, mSpawnFxTex, position, type);
+}
+
 void StageManager::draw(sf::RenderWindow& window)
 {
-    for (auto& e : mEnemies) e.draw(window);
+    for (auto& e    : mEnemies) e.draw(window);
+    for (auto& item : mItems)   item.draw(window);
 
     if (mState == StageState::StageClear)
     {
@@ -125,14 +153,15 @@ void StageManager::spawnEnemy(sf::Vector2f playerCenter)
     float len = std::sqrt(dir.x * dir.x + dir.y * dir.y);
     if (len != 0) dir /= len;
 
-    mEnemies.emplace_back(mWalkTex, mDespawnTex, pos, dir);
+    int hp = mStages[mCurrentStage].enemyHp;
+    mEnemies.emplace_back(mWalkTex, mDespawnTex, pos, dir, hp);
 }
 
 void StageManager::nextStage()
 {
     mCurrentStage++;
     mSpawnedCount  = 0;
-    mSpawnInterval = 1.5f; // sedikit lebih cepat spawn tiap stage
+    mSpawnInterval = mStages[mCurrentStage].spawnIntervalStart;
     mState         = StageState::Playing;
     mSpawnClock.restart();
 }
@@ -140,14 +169,15 @@ void StageManager::nextStage()
 void StageManager::reset()
 {
     mEnemies.clear();
+    mItems.clear();
     mCurrentStage  = 0;
     mSpawnedCount  = 0;
-    mKilledCount   = 0;
-    mSpawnInterval = 2.0f;
+    mSpawnInterval = mStages[0].spawnIntervalStart;
     mState         = StageState::Playing;
     mSpawnClock.restart();
 }
 
-std::vector<Enemy>& StageManager::getEnemies()  { return mEnemies; }
-StageState          StageManager::getState()     const { return mState; }
-int                 StageManager::getCurrentStage() const { return mCurrentStage; }
+std::vector<Enemy>& StageManager::getEnemies() { return mEnemies; }
+std::vector<Item>&  StageManager::getItems()    { return mItems;   }
+StageState          StageManager::getState()    const { return mState; }
+int StageManager::getCurrentStage()             const { return mCurrentStage; }

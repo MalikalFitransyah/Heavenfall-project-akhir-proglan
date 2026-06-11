@@ -1,8 +1,11 @@
 #include "Arrow.hpp"
 #include <cmath>
 
-Arrow::Arrow(sf::Texture& texture, sf::Vector2f position, sf::Vector2f direction)
-    : mSprite(texture), mFrame(LOOP_START)
+Arrow::Arrow(sf::Texture& texture, sf::Vector2f position,
+             sf::Vector2f direction, bool piercing)
+    : mSprite(texture)
+    , mFrame(LOOP_START)
+    , mPiercing(piercing)
 {
     mSprite.setOrigin({FRAME_W / 2.f, FRAME_H / 2.f});
     mSprite.setScale({4.f, 4.f});
@@ -28,10 +31,7 @@ void Arrow::update(float dt)
     }
 }
 
-void Arrow::draw(sf::RenderWindow& window)
-{
-    window.draw(mSprite);
-}
+void Arrow::draw(sf::RenderWindow& window) { window.draw(mSprite); }
 
 bool Arrow::isOutOfBounds(float mapW, float mapH) const
 {
@@ -45,7 +45,5 @@ sf::FloatRect Arrow::getHitbox() const
     return sf::FloatRect({p.x - 15.f, p.y - 15.f}, {30.f, 30.f});
 }
 
-sf::Vector2f Arrow::getPosition() const
-{
-    return mSprite.getPosition();
-}
+sf::Vector2f Arrow::getPosition() const { return mSprite.getPosition(); }
+bool         Arrow::isPiercing()  const { return mPiercing; }

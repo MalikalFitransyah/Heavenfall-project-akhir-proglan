@@ -4,16 +4,20 @@
 class Enemy
 {
 public:
-    Enemy(sf::Texture* walkTex, sf::Texture* despawnTex, sf::Vector2f position, sf::Vector2f direction);
+    Enemy(sf::Texture* walkTex, sf::Texture* despawnTex,
+          sf::Vector2f position, sf::Vector2f direction, int maxHp);
 
     void update(float dt, sf::Vector2f playerCenter);
     void draw(sf::RenderWindow& window);
 
+    void hit();           // kena tembakan
     void triggerDeath();
-    bool isDying()  const;
-    bool isDead()   const;
+    bool isDying()    const;
+    bool isDead()     const;
+    bool isInvincible() const;
 
-    sf::FloatRect getHitbox() const;
+    sf::FloatRect getHitbox()   const;
+    sf::Vector2f  getPosition() const;
 
 private:
     sf::Texture*  mDespawnTex;
@@ -21,6 +25,7 @@ private:
     sf::Sprite   mSprite;
     sf::Vector2f mVelocity;
 
+    int          mHp;
     int          mFrame;
     sf::Clock    mAnimClock;
 
@@ -28,6 +33,10 @@ private:
     bool         mDead;
     int          mDyingFrame;
     sf::Clock    mDyingClock;
+
+    // Flash saat kena hit
+    sf::Clock    mHitClock;
+    bool         mHitFlash;
 
     static const int FRAME_W     = 64;
     static const int FRAME_H     = 64;

@@ -44,31 +44,66 @@ void Player::startCharge(sf::Vector2f mousePos)
     mChargeArrow.setPosition(mChargeSpawnPos);
 }
 
+void Player::fireArrow(sf::Vector2f spawnPos, sf::Vector2f dir)
+{
+    bool piercing = mBuffs.hasBlasphemous;
+    mArrows.emplace_back(mArrowTex, spawnPos, dir, piercing);
+}
+
 void Player::updateCharge()
 {
     if (!mIsCharging) return;
 
-    if (mChargeClock.getElapsedTime().asSeconds() > 0.05f)
+    // TerrorEye buff: charge lebih cepat
+    int maxCharge = mBuffs.hasTerrorEye ? CHARGE_FRAMES_FAST : CHARGE_FRAMES_NORMAL;
+    float chargeSpeed = mBuffs.hasTerrorEye ? 0.02f : 0.05f;
+
+    if (mChargeClock.getElapsedTime().asSeconds() > chargeSpeed)
     {
         mChargeFrame++;
         mChargeClock.restart();
 
-        if (mChargeFrame >= CHARGE_FRAMES)
+        if (mChargeFrame >= maxCharge)
         {
-            mArrows.emplace_back(mArrowTex, mChargeSpawnPos, mChargeDir);
+            // DevilWing buff: 3 tembakan menyebar
+            if (mBuffs.hasDevilWing)
+            {
+                // Tengah
+                fireArrow(mChargeSpawnPos, mChargeDir);
+
+                // Serong atas (+20 derajat)
+                float baseAngle = std::atan2(mChargeDir.y, mChargeDir.x);
+                float spread    = 20.f * 3.14159265f / 180.f;
+
+                sf::Vector2f dirUp(
+                    std::cos(baseAngle - spread),
+                    std::sin(baseAngle - spread)
+                );
+                sf::Vector2f dirDown(
+                    std::cos(baseAngle + spread),
+                    std::sin(baseAngle + spread)
+                );
+                fireArrow(mChargeSpawnPos, dirUp);
+                fireArrow(mChargeSpawnPos, dirDown);
+            }
+            else
+            {
+                fireArrow(mChargeSpawnPos, mChargeDir);
+            }
+
             mIsCharging  = false;
             mChargeFrame = 0;
         }
         else
         {
+            // Clamp frame ke animasi charge yang tersedia (max 8)
+            int displayFrame = (mChargeFrame * 8) / maxCharge;
             mChargeArrow.setTextureRect(sf::IntRect(
-                {mChargeFrame * ARROW_W, 0},
-                {ARROW_W, ARROW_H}
+                {displayFrame * ARROW_W, 0}, {ARROW_W, ARROW_H}
             ));
         }
     }
 
-    // Preview ngikut posisi player
     mChargeSpawnPos = getCenter() + sf::Vector2f(60.f, 0.f);
     mChargeArrow.setPosition(mChargeSpawnPos);
 }
@@ -105,16 +140,13 @@ void Player::update(float dt, float mapW, float mapH)
     {
         mFrame = (mFrame + 1) % ANIM_FRAMES;
         mSprite.setTextureRect(sf::IntRect(
-            {mFrame * FRAME_W, 0},
-            {FRAME_W, FRAME_H}
+            {mFrame * FRAME_W, 0}, {FRAME_W, FRAME_H}
         ));
         mAnimClock.restart();
     }
 
-    // Update arrows
     for (auto& a : mArrows) a.update(dt);
 
-    // Hapus arrow out of bounds
     mArrows.erase(
         std::remove_if(mArrows.begin(), mArrows.end(),
             [&](const Arrow& a){ return a.isOutOfBounds(mapW, mapH); }),
@@ -131,7 +163,10 @@ void Player::draw(sf::RenderWindow& window)
     window.draw(mSprite);
 }
 
-std::vector<Arrow>& Player::getArrows() { return mArrows; }
+void Player::applyBuff(PlayerBuffs& buffs) { mBuffs = buffs; }
+PlayerBuffs& Player::getBuffs()            { return mBuffs; }
+
+std::vector<Arrow>& Player::getArrows()    { return mArrows; }
 
 sf::Vector2f Player::getCenter() const
 {
