@@ -2,6 +2,11 @@
 #include <SFML/Graphics.hpp>
 #include "Player.hpp"
 #include "StageManager.hpp"
+#include "MainMenu.hpp"
+#include "StoryScreen.hpp"
+#include "WinScreen.hpp"
+
+enum class GameState { MainMenu, Story, FadeToGame, Playing, FadeToGameOver, GameOver, Win };
 
 class Game
 {
@@ -14,8 +19,10 @@ private:
     void processEvents();
     void update(float dt);
     void draw();
+    void startGame();
     void resetGame();
     void buildUI();
+    void buildGameOverUI();
     void updateItemHUD();
 
     sf::RenderWindow mWindow;
@@ -23,42 +30,38 @@ private:
     static constexpr float MAP_H = 1440.f;
 
     sf::Texture mIdleTex, mRightTex, mLeftTex;
-    sf::Texture mBgTex;
+    sf::Texture mBgTex, mGateTex;
     sf::Texture mArrowTex;
-    sf::Texture mEnemyTex;
-    sf::Texture mDespawnTex;
-    sf::Texture mTerroreyeTex;
-    sf::Texture mMaskTex;
-    sf::Texture mWingTex;
-    sf::Texture mSpawnFxTex;
+    sf::Texture mEnemyTex, mDespawnTex;
+    sf::Texture mTerroreyeTex, mMaskTex, mWingTex, mSpawnFxTex;
+    sf::Texture mBossTex, mBossAtkTex, mLaserTex, mBossDespawnTex;
 
     sf::Sprite* mBackground;
-    sf::Font    mFont;
+    sf::Font    mFont, mCinzelReg, mCinzelBold;
 
     Player*       mPlayer;
     StageManager* mStageManager;
+    MainMenu*     mMainMenu;
+    StoryScreen*  mStoryScreen;
 
-    bool mGameOver;
-    bool mGameActive;
+    GameState mState;
 
-    // Game Over UI
+    sf::RectangleShape mFadeRect;
+    float              mFadeAlpha;
+
     sf::RectangleShape mOverlay;
-    sf::Text           mGameOverText;
+    sf::Text           mGameOverTitle;
     sf::RectangleShape mBtnRestart;
     sf::Text           mTxtRestart;
     sf::RectangleShape mBtnQuit;
     sf::Text           mTxtQuit;
+    float              mGameOverFade;
 
-    // HUD tengah atas - stage
     sf::Text           mStageHUD;
+    sf::Sprite         mHudTerrorEye, mHudMask, mHudWing;
+    bool               mShowTerrorEye, mShowMask, mShowWing;
 
-    // HUD pojok kanan atas - item yang sudah diambil
-    sf::Sprite         mHudTerrorEye;
-    sf::Sprite         mHudMask;
-    sf::Sprite         mHudWing;
-    bool               mShowTerrorEye;
-    bool               mShowMask;
-    bool               mShowWing;
+    WinScreen* mWinScreen;
 
     sf::Clock mDeltaClock;
 };

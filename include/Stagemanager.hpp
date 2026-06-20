@@ -3,6 +3,7 @@
 #include <vector>
 #include "Enemy.hpp"
 #include "Item.hpp"
+#include "Boss.hpp"
 
 enum class StageState { Playing, StageClear, AllClear };
 
@@ -11,15 +12,18 @@ struct StageData
     int   totalEnemies;
     float spawnIntervalStart;
     float spawnIntervalMin;
-    int   enemyHp;           // HP musuh per stage
+    int   enemyHp;
+    bool  isBossStage;
 };
 
 class StageManager
 {
 public:
-    StageManager(sf::Texture* walkTex, sf::Texture* despawnTex,
+    StageManager(sf::Texture* walkTex,    sf::Texture* despawnTex,
                  sf::Texture* terroreyeTex, sf::Texture* maskTex,
                  sf::Texture* wingTex,      sf::Texture* spawnFxTex,
+                 sf::Texture* bossTex,      sf::Texture* bossAtkTex,
+                 sf::Texture* laserTex,     sf::Texture* bossDespawnTex,
                  sf::Font& font, float mapW, float mapH);
 
     void update(float dt, sf::Vector2f playerCenter);
@@ -27,6 +31,7 @@ public:
 
     std::vector<Enemy>& getEnemies();
     std::vector<Item>&  getItems();
+    Boss*               getBoss();
     StageState          getState()        const;
     int                 getCurrentStage() const;
 
@@ -35,6 +40,7 @@ public:
 
 private:
     void spawnEnemy(sf::Vector2f playerCenter);
+    void spawnBoss(sf::Vector2f playerCenter);
     void dropItem(sf::Vector2f position);
     void updateStageClearTimer(float dt);
 
@@ -44,10 +50,15 @@ private:
     sf::Texture* mMaskTex;
     sf::Texture* mWingTex;
     sf::Texture* mSpawnFxTex;
+    sf::Texture* mBossTex;
+    sf::Texture* mBossAtkTex;
+    sf::Texture* mLaserTex;
+    sf::Texture* mBossDespawnTex;
 
     std::vector<Enemy>     mEnemies;
     std::vector<Item>      mItems;
     std::vector<StageData> mStages;
+    Boss*                  mBoss;
 
     int          mCurrentStage;
     int          mSpawnedCount;
@@ -63,4 +74,8 @@ private:
 
     sf::Text     mStageClearText;
     sf::Text     mStageNameText;
+    sf::Text     mBossWarningText;
+    sf::Clock    mBossWarnClock;
+    bool         mShowBossWarn;
+    bool         mBossSpawned;
 };
