@@ -20,32 +20,29 @@ public:
 private:
     float mMapW, mMapH;
 
-    // Background hitam
     sf::RectangleShape mBg;
 
-    // Story text
     sf::Text mStoryText;
-    sf::Text mPromptText; // "PRESS TO CONTINUE"
+    sf::Text mPromptText; 
 
-    // Fade overlay
     sf::RectangleShape mFade;
     float              mFadeAlpha;
 
     enum class Phase
     {
-        FadeIn,     // fade masuk dari hitam
-        Show,       // tampilkan teks
-        FadeOut,    // fade keluar ke hitam
+        FadeIn,     
+        Show,       
+        FadeOut,   
         Done
     };
 
     Phase      mPhase;
     StoryResult mResult;
 
-    // Prompt blink
+  
     sf::Clock  mBlinkClock;
     bool       mPromptVisible;
 
-    // Klik sudah diterima
+  
     bool       mClicked;
 };

@@ -3,7 +3,6 @@
 
 enum class BossPhase { Idle, Moving, Charging, AttackPlus, AttackX, Dead, Despawning };
 
-// Satu beam laser dari boss
 struct LaserBeam
 {
     sf::Sprite   sprite;
@@ -35,7 +34,7 @@ public:
     bool isDead()   const;
     bool isActive() const;
     bool isInvincible() const;
-    bool isDespawnDone() const; // true setelah animasi + 2 detik selesai
+    bool isDespawnDone() const;
 
     // Cek apakah laser kena player
     bool checkLaserHit(sf::FloatRect playerHitbox);
@@ -48,7 +47,7 @@ private:
     void updateMoving(float dt, sf::Vector2f playerCenter);
     void updateCharging(float dt);
     void updateAttack(float dt, sf::Vector2f playerCenter);
-    void fireLasers(bool plusPattern); // true=+, false=X
+    void fireLasers(bool plusPattern); 
     void updateLasers(float dt);
     void fireAllDirections();
 
@@ -56,8 +55,8 @@ private:
     sf::Texture* mLaserTex;
     sf::Texture* mDespawnTex;
 
-    sf::Sprite   mSprite;     // boss idle
-    sf::Sprite   mAtkSprite;  // boss saat attack
+    sf::Sprite   mSprite;     
+    sf::Sprite   mAtkSprite; 
     bool         mShowAtk;
 
     int          mHp;
@@ -65,25 +64,21 @@ private:
 
     BossPhase    mPhase;
     sf::Clock    mPhaseClock;
-    sf::Clock    mAttackClock;  // timer 8 detik antar serangan
-    sf::Clock    mChargeTimer;  // timer charge laser
+    sf::Clock    mAttackClock; 
+    sf::Clock    mChargeTimer;
 
     sf::Vector2f mPosition;
     sf::Vector2f mVelocity;
     sf::Clock    mHitClock;
     bool         mHitFlash;
 
-    // Animasi boss attack (4 frame)
     int          mAtkFrame;
     sf::Clock    mAtkAnimClock;
 
-    // Laser beams — max 4 beam per serangan
     std::vector<LaserBeam> mBeams;
 
-    // Fase serangan: 0 = belum serang, 1 = + done, 2 = X done
     int          mAttackStage;
 
-    // Laser animation state
     enum class LaserState { Charge, Hold, Fire, Done };
     LaserState   mLaserState;
     sf::Clock    mLaserStateClock;

@@ -54,5 +54,5 @@ private:
     static constexpr float SCALE     = 4.f;
     static constexpr float SPEED     = 500.f;
     static const int   CHARGE_FRAMES_NORMAL = 8;
-    static const int   CHARGE_FRAMES_FAST   = 3; // TerrorEye buff
+    static const int   CHARGE_FRAMES_FAST   = 3; 
 };

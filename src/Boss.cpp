@@ -27,13 +27,11 @@ Boss::Boss(sf::Texture* bossTex, sf::Texture* atkTex, sf::Texture* laserTex,
     , mDespawnAnimDone(false)
     , mDespawnDone(false)
 {
-    // Boss idle sprite
     mSprite.setTextureRect(sf::IntRect({0,0},{BOSS_W,BOSS_H}));
     mSprite.setOrigin({BOSS_W/2.f, BOSS_H/2.f});
     mSprite.setScale({3.f, 3.f});
     mSprite.setPosition(mPosition);
 
-    // Boss atk sprite
     mAtkSprite.setTextureRect(sf::IntRect({0,0},{ATK_W,ATK_H}));
     mAtkSprite.setOrigin({ATK_W/2.f, ATK_H/2.f});
     mAtkSprite.setScale({3.f, 3.f});
@@ -87,7 +85,6 @@ void Boss::updateMoving(float dt, sf::Vector2f playerCenter)
     mVelocity = dir * SPEED;
     mPosition += mVelocity * dt;
 
-    // Cek waktu 5 detik untuk serangan
     if (mAttackClock.getElapsedTime().asSeconds() >= 5.f)
     {
         mAttackClock.restart();
@@ -380,7 +377,6 @@ if (mHitFlash && mHitClock.getElapsedTime().asSeconds() > 0.15f)
 
 void Boss::draw(sf::RenderWindow& window)
 {
-    // Despawn animasi
     if (mPhase == BossPhase::Despawning && !mDespawnAnimDone)
     {
         sf::Sprite despawnSprite(*mDespawnTex);
@@ -397,11 +393,9 @@ void Boss::draw(sf::RenderWindow& window)
 
     if (mDead) return;
 
-    // Gambar laser di belakang boss
     for (auto& beam : mBeams)
         if (beam.active) window.draw(beam.sprite);
 
-    // Gambar boss
     if (mShowAtk) window.draw(mAtkSprite);
     else          window.draw(mSprite);
 }

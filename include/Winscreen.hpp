@@ -8,7 +8,7 @@ public:
 
     void update(float dt);
     void draw();
-    bool isInputReady() const; // true setelah fade selesai, siap terima input
+    bool isInputReady() const; 
 
 private:
     sf::RenderWindow&  mWindow;

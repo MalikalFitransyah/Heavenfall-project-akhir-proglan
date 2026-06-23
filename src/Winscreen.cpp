@@ -16,14 +16,12 @@ WinScreen::WinScreen(sf::RenderWindow& window, sf::Font& font)
 
     mOverlay.setFillColor(sf::Color(0, 0, 0, 0));
 
-    // "WELL DONE" — tengah layar
     mWellDone.setFillColor(sf::Color(220, 210, 180));
     mWellDone.setLetterSpacing(1.5f);
     sf::FloatRect wb = mWellDone.getLocalBounds();
     mWellDone.setOrigin({ wb.size.x / 2.f, wb.size.y / 2.f });
     mWellDone.setPosition({ w / 2.f, h / 2.f - 50.f });
 
-    // "PRESS ANY KEY TO CONTINUE" — sedikit di bawah
     mContinue.setFillColor(sf::Color(160, 150, 130));
     mContinue.setLetterSpacing(2.f);
     sf::FloatRect cb = mContinue.getLocalBounds();

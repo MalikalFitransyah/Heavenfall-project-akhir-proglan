@@ -100,7 +100,6 @@ if (stage.isBossStage)
         return;
     }
 
-    // ===== NORMAL STAGE =====
     int total = stage.totalEnemies;
 
     if (mSpawnedCount < total)

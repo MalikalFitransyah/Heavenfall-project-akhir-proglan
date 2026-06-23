@@ -10,7 +10,7 @@ public:
     void update(float dt, sf::Vector2f playerCenter);
     void draw(sf::RenderWindow& window);
 
-    void hit();           // kena tembakan
+    void hit();          
     void triggerDeath();
     bool isDying()    const;
     bool isDead()     const;

@@ -31,7 +31,6 @@ MainMenu::MainMenu(sf::Texture& bgTex, sf::Font& fontRegular, sf::Font& fontBold
     mLeftDark.setPosition({0.f, 0.f});
     mLeftDark.setFillColor(sf::Color(0, 0, 0, 0));
 
-    // Shadow judul
     mTitleShadow.setFillColor(sf::Color(0, 0, 0, 180));
     mTitleShadow.setLetterSpacing(1.5f);
     sf::FloatRect tsb = mTitleShadow.getLocalBounds();
@@ -131,7 +130,6 @@ void MainMenu::updateHover(sf::Vector2f mouse)
 
 void MainMenu::update(float dt)
 {
-    // Fade in saat buka menu
     if (!mFadeDone)
     {
         mFadeAlpha -= 180.f * dt;
@@ -140,7 +138,6 @@ void MainMenu::update(float dt)
         return;
     }
 
-    // Fade out saat play ditekan
     if (mFadingOut)
     {
         mFadeOutAlpha += 220.f * dt;
@@ -153,7 +150,6 @@ void MainMenu::update(float dt)
         return;
     }
 
-    // Pulsing judul
     mTitleAlpha += mAlphaDir * 25.f * dt;
     if (mTitleAlpha <= 190.f) { mTitleAlpha = 190.f; mAlphaDir =  1.f; }
     if (mTitleAlpha >= 255.f) { mTitleAlpha = 255.f; mAlphaDir = -1.f; }

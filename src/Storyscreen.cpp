@@ -28,7 +28,6 @@ StoryScreen::StoryScreen(sf::Font& font, float mapW, float mapH)
 {
     mBg.setFillColor(sf::Color::Black);
 
-    // Story text — tengah layar, warna krem
     mStoryText.setFillColor(sf::Color(210, 200, 180));
     mStoryText.setLineSpacing(1.6f);
     mStoryText.setLetterSpacing(1.2f);
@@ -36,20 +35,17 @@ StoryScreen::StoryScreen(sf::Font& font, float mapW, float mapH)
     mStoryText.setOrigin({tb.size.x / 2.f, tb.size.y / 2.f});
     mStoryText.setPosition({mapW / 2.f, mapH / 2.f - 60.f});
 
-    // Prompt teks di bawah
     mPromptText.setFillColor(sf::Color(160, 150, 130));
     mPromptText.setLetterSpacing(2.f);
     sf::FloatRect pb = mPromptText.getLocalBounds();
     mPromptText.setOrigin({pb.size.x / 2.f, pb.size.y / 2.f});
     mPromptText.setPosition({mapW / 2.f, mapH - 120.f});
 
-    // Fade overlay
     mFade.setFillColor(sf::Color(0, 0, 0, 255));
 }
 
 void StoryScreen::update(float dt)
 {
-    // Blink prompt
     if (mBlinkClock.getElapsedTime().asSeconds() > 0.6f)
     {
         mPromptVisible = !mPromptVisible;
@@ -68,7 +64,7 @@ void StoryScreen::update(float dt)
     }
     else if (mPhase == Phase::Show)
     {
-        // Tunggu klik
+    
         if (mClicked)
         {
             mPhase     = Phase::FadeOut;
