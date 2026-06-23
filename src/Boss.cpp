@@ -97,7 +97,7 @@ void Boss::updateMoving(float dt, sf::Vector2f playerCenter)
 
 void Boss::updateCharging(float dt)
 {
-    // Animasi boss atk frame 1-3 (charge), stuck di frame 3
+    // Animasi boss atk frame 1-3 (charge)
     if (mAtkAnimClock.getElapsedTime().asSeconds() > 0.03f)
     {
         if (mAtkFrame < 3) mAtkFrame++;
@@ -105,7 +105,7 @@ void Boss::updateCharging(float dt)
         mAtkAnimClock.restart();
     }
 
-    // Setelah 1 detik charge, mulai tembak laser + pattern
+    // tembak setelah 1 detik charge
     if (mChargeTimer.getElapsedTime().asSeconds() >= 1.0f)
     {
         // Tentukan pola: stage 0 = +, stage 1 = X
@@ -128,20 +128,20 @@ void Boss::fireLasers(bool plusPattern)
     if (plusPattern)
     {
         dirs = {
-            { 1.f,  0.f}, // kanan
-            {-1.f,  0.f}, // kiri
-            { 0.f,  1.f}, // bawah
-            { 0.f, -1.f}, // atas
+            { 1.f,  0.f},
+            {-1.f,  0.f}, 
+            { 0.f,  1.f}, 
+            { 0.f, -1.f},
         };
     }
     else
     {
         float d = 1.f / std::sqrt(2.f);
         dirs = {
-            { d,  d},  // kanan bawah
-            {-d,  d},  // kiri bawah
-            { d, -d},  // kanan atas
-            {-d, -d},  // kiri atas
+            { d,  d}, 
+            {-d,  d}, 
+            { d, -d}, 
+            {-d, -d},
         };
     }
 

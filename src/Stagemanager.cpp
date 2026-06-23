@@ -29,10 +29,10 @@ StageManager::StageManager(sf::Texture* walkTex,    sf::Texture* despawnTex,
 {
     // totalEnemies, spawnStart, spawnMin, enemyHp, isBossStage
     mStages = {
-        { 1, 2.0f, 1.2f, 1, false },  // Stage 1
-        { 1, 1.8f, 0.9f, 2, false },  // Stage 2
-        { 1, 1.5f, 0.6f, 3, false },  // Stage 3
-        { 1, 1.2f, 0.3f, 4, false },  // Stage 4
+        { 15, 2.0f, 1.2f, 1, false },  // Stage 1
+        { 30, 1.8f, 0.9f, 2, false },  // Stage 2
+        { 50, 1.5f, 0.6f, 3, false },  // Stage 3
+        { 80, 1.2f, 0.3f, 4, false },  // Stage 4
         {  0, 0.0f, 0.0f, 0, true  },  // Stage 5 - BOSS
     };
 
