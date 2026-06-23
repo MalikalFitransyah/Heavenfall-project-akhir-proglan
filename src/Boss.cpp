@@ -12,7 +12,7 @@ Boss::Boss(sf::Texture* bossTex, sf::Texture* atkTex, sf::Texture* laserTex,
     , mSprite(*bossTex)
     , mAtkSprite(*atkTex)
     , mShowAtk(false)
-    , mHp(300)
+    , mHp(400)
     , mDead(false)
     , mPhase(BossPhase::Moving)
     , mPosition(spawnPos)
